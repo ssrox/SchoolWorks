@@ -1,4 +1,4 @@
-// 习惯数据（增加了详细描述）
+
 const habits = [
     {
         title: "规律作息",
@@ -120,7 +120,7 @@ const habits = [
         icon: "fa-book"
     }
 ];
-
+//plz dont steal the code of Rox!!
 let currentStep = 0;
 let activeCardIndex = null;
 
@@ -168,10 +168,10 @@ function showNextCard() {
             ${currentStep < habits.length - 1 ? '下一个' : '完成'}
         </button>
     `;
-
+//plz dont steal the code of Rox!!
     container.appendChild(card);
     
-    // 触发重排后添加动画效果
+    // 触发重排后添加动画效果 the tag of rox
     setTimeout(() => {
         card.style.opacity = '1';
         card.style.transform = 'translateY(0)';
@@ -207,7 +207,7 @@ function showCompletionMessage() {
     `;
     
     container.appendChild(completionCard);
-}
+}//the tag of rox
 
 // 显示总览视图
 function showOverview() {
