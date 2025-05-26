@@ -5,24 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        /* 使用 ::before 并设置高层级 */
-button::before {
-    content: '★'; /* 显示内容方便观察 */
-    position: absolute;
-    z-index: 1;
-    color: red;
-}
-
-/* 使用 ::after 并设置高层级 */
-button::after {
-    content: '★';
-    position: absolute;
-    z-index: 1;
-    color: blue;
-}
+        .highlight{
+            border-radius: 30px;
+            border: none;
+            padding: 30px 50px;
+            background-color: aqua;
+            font-weight: 700;
+            font-size: 50px;
+            
+        }
     </style>
 </head>
 <body>
-    <button>点击我</button>
+    <button class="highlight">TEST</button>
 </body>
 </html>
