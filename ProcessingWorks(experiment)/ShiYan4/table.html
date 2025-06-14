@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动态学生表格</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        body {
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .table-container {
+            width: 100%;
+            max-width: 900px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        .table-header {
+            background: #4F46E5;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 15px 15px 0 0;
+        }
+        .table-header h1 {
+            font-size: 22px;
+            font-weight: bold;
+        }
+        .table-content {
+            padding: 20px 30px;
+        }
+        .table-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .refresh-btn {
+            background: #4F46E5;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        .refresh-btn:hover {
+            background: #3b35d6;
+        }
+        .refresh-btn i {
+            margin-right: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e1e4e8;
+        }
+        th {
+            background: #f3f4f6;
+            font-weight: 600;
+            color: #4b5563;
+        }
+        tr:hover {
+            background: #f9fafb;
+        }
+        .delete-btn {
+            color: #ef4444;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .delete-btn:hover {
+            color: #dc2626;
+        }
+        .empty-table {
+            text-align: center;
+            padding: 30px;
+            color: #6b7280;
+            font-style: italic;
+        }
+        @media (max-width: 600px) {
+            .table-header, .table-content {
+                padding: 15px;
+            }
+            th, td {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="table-container">
+        <div class="table-header">
+            <h1>学生信息管理表格</h1>
+        </div>
+        <div class="table-content">
+            <div class="table-actions">
+                <span>共 <span id="studentCount">0</span> 条记录</span>
+                <button class="refresh-btn" id="refreshBtn">
+                    <i class="fa fa-refresh"></i> 刷新数据
+                </button>
+            </div>
+            <table id="studentTable">
+                <thead>
+                    <tr>
+                        <th>学号</th>
+                        <th>姓名</th>
+                        <th>年龄</th>
+                        <th>班级</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- 表格内容将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // 模拟学生数据数组
+        const students = [
+            { id: '2410250001', name: '张三', age: 19, class: '9902010-001' },
+            { id: '2410250002', name: '李四', age: 20, class: '9902010-001' },
+            { id: '2410250003', name: '王五', age: 19, class: '9902010-004' },
+            { id: '2410250004', name: '赵六', age: 21, class: '9902010-004' },
+            { id: '2410250005', name: '钱七', age: 19, class: '9902010-001' },
+            { id: '2410250006', name: '孙八', age: 20, class: '9902010-004' }
+        ];
+
+        // 获取DOM元素
+        const tableBody = document.getElementById('tableBody');
+        const studentCount = document.getElementById('studentCount');
+        const refreshBtn = document.getElementById('refreshBtn');
+
+        // 生成随机学生数据的函数
+        function generateRandomStudent() {
+            const id = `24102500${Math.floor(10 + Math.random() * 90)}`;
+            const names = ['张三', '李四', '王五', '赵六', '钱七', '孙八', '周九', '吴十'];
+            const name = names[Math.floor(Math.random() * names.length)];
+            const age = 18 + Math.floor(Math.random() * 4);
+            const classes = ['9902010-001', '9902010-004'];
+            const className = classes[Math.floor(Math.random() * classes.length)];
+            return { id, name, age, class: className };
+        }
+
+        // 渲染学生表格的函数
+        function renderStudentTable(studentsData) {
+            tableBody.innerHTML = '';
+            
+            if (studentsData.length === 0) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.className = 'empty-table';
+                emptyRow.colSpan = 5;
+                const emptyCell = document.createElement('td');
+                emptyCell.textContent = '暂无学生数据';
+                emptyCell.colSpan = 5;
+                emptyRow.appendChild(emptyCell);
+                tableBody.appendChild(emptyRow);
+                studentCount.textContent = '0';
+                return;
+            }
+
+            studentsData.forEach(student => {
+                const row = document.createElement('tr');
+                row.className = 'table-row-hover';
+
+                // 学号单元格
+                const idCell = document.createElement('td');
+                idCell.textContent = student.id;
+
+                // 姓名单元格
+                const nameCell = document.createElement('td');
+                nameCell.textContent = student.name;
+
+                // 年龄单元格
+                const ageCell = document.createElement('td');
+                ageCell.textContent = student.age;
+
+                // 班级单元格
+                const classCell = document.createElement('td');
+                classCell.textContent = student.class;
+
+                // 操作单元格（删除按钮）
+                const actionCell = document.createElement('td');
+                const deleteBtn = document.createElement('a');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.href = 'javascript:void(0)';
+                deleteBtn.textContent = '删除';
+                deleteBtn.onclick = function() {
+                    // 删除当前行
+                    row.remove();
+                    // 更新学生计数
+                    updateStudentCount();
+                };
+                actionCell.appendChild(deleteBtn);
+
+                // 将单元格添加到行
+                row.appendChild(idCell);
+                row.appendChild(nameCell);
+                row.appendChild(ageCell);
+                row.appendChild(classCell);
+                row.appendChild(actionCell);
+
+                // 将行添加到表格
+                tableBody.appendChild(row);
+            });
+
+            // 更新学生计数
+            updateStudentCount();
+        }
+
+        // 更新学生计数的函数
+        function updateStudentCount() {
+            const rows = tableBody.querySelectorAll('tr:not(.empty-table)');
+            studentCount.textContent = rows.length;
+        }
+
+        // 刷新按钮点击事件
+        refreshBtn.addEventListener('click', function() {
+            // 生成新的随机学生数据
+            const newStudents = [];
+            for (let i = 0; i < 6; i++) {
+                newStudents.push(generateRandomStudent());
+            }
+            // 重新渲染表格
+            renderStudentTable(newStudents);
+        });
+
+        // 页面加载时渲染表格
+        renderStudentTable(students);
+    </script>
+</body>
+</html>

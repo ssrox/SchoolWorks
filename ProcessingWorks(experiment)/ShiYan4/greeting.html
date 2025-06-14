@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时间问候语</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .greeting-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+        }
+        .greeting-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        .greeting-title:after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: #4F46E5;
+            border-radius: 3px;
+        }
+        .greeting-message {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .time-display {
+            font-size: 24px;
+            color: #4F46E5;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        .date-display {
+            font-size: 16px;
+            color: #777;
+            margin-top: 10px;
+        }
+        .icon-container {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #4F46E510;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+        }
+        .greeting-icon {
+            font-size: 40px;
+            color: #4F46E5;
+        }
+        @media (max-width: 400px) {
+            .greeting-card {
+                padding: 20px;
+            }
+            .greeting-title {
+                font-size: 24px;
+            }
+            .greeting-message {
+                font-size: 16px;
+            }
+            .time-display {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="greeting-card">
+        <div class="icon-container">
+            <i class="greeting-icon" id="greetingIcon"></i>
+        </div>
+        <h1 class="greeting-title" id="greetingTitle">问候语</h1>
+        <p class="greeting-message" id="greetingMessage">根据时间显示不同问候</p>
+        <div class="time-display" id="timeDisplay">00:00:00</div>
+        <div class="date-display" id="dateDisplay">2025年01月01日</div>
+    </div>
+
+    <script>
+        // 定义问候语对象，包含时间段和对应的问候语、图标
+        const greetings = {
+            '凌晨好': { start: 0, end: 6, icon: 'fa-moon-o' },
+            '早上好': { start: 6, end: 9, icon: 'fa-sun-o' },
+            '上午好': { start: 9, end: 12, icon: 'fa-sun-o' },
+            '中午好': { start: 12, end: 14, icon: 'fa-cutlery' },
+            '下午好': { start: 14, end: 17, icon: 'fa-sun-o' },
+            '傍晚好': { start: 17, end: 19, icon: 'fa-cloud-sun' },
+            '晚上好': { start: 19, end: 22, icon: 'fa-moon-o' },
+            '夜里好': { start: 22, end: 24, icon: 'fa-bed' }
+        };
+
+        // 获取DOM元素
+        const greetingTitle = document.getElementById('greetingTitle');
+        const greetingMessage = document.getElementById('greetingMessage');
+        const greetingIcon = document.getElementById('greetingIcon');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const dateDisplay = document.getElementById('dateDisplay');
+
+        // 更新时间和问候语的函数
+        function updateTimeAndGreeting() {
+            const now = new Date();
+            const hour = now.getHours();
+            const minute = now.getMinutes().toString().padStart(2, '0');
+            const second = now.getSeconds().toString().padStart(2, '0');
+            const year = now.getFullYear();
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const day = now.getDate().toString().padStart(2, '0');
+            const weekDays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            const weekDay = weekDays[now.getDay()];
+
+            // 格式化时间和日期
+            timeDisplay.textContent = `${hour}:${minute}:${second}`;
+            dateDisplay.textContent = `${year}年${month}月${day}日 ${weekDay}`;
+
+            // 根据小时获取对应的问候语
+            let currentGreeting = '';
+            for (const greeting in greetings) {
+                const { start, end } = greetings[greeting];
+                if ((hour >= start && hour < end) || (start === 22 && hour >= start)) {
+                    currentGreeting = greeting;
+                    break;
+                }
+            }
+
+            // 更新问候语和图标
+            greetingTitle.textContent = currentGreeting;
+            greetingIcon.className = `greeting-icon fa ${greetings[currentGreeting].icon}`;
+
+            // 根据不同的问候语设置不同的提示信息
+            switch (currentGreeting) {
+                case '凌晨好':
+                    greetingMessage.textContent = '夜深了，注意休息，别熬夜哦！';
+                    break;
+                case '早上好':
+                    greetingMessage.textContent = '新的一天开始了，祝你有个美好的早晨！';
+                    break;
+                case '上午好':
+                    greetingMessage.textContent = '上午好，工作学习要加油哦！';
+                    break;
+                case '中午好':
+                    greetingMessage.textContent = '中午好，记得按时吃饭，补充能量！';
+                    break;
+                case '下午好':
+                    greetingMessage.textContent = '下午好，继续努力，离目标更近一步！';
+                    break;
+                case '傍晚好':
+                    greetingMessage.textContent = '傍晚好，忙碌了一天，适当放松一下吧！';
+                    break;
+                case '晚上好':
+                    greetingMessage.textContent = '晚上好，享受夜晚的宁静时光！';
+                    break;
+                case '夜里好':
+                    greetingMessage.textContent = '夜深了，早点休息，祝你好梦！';
+                    break;
+                default:
+                    greetingMessage.textContent = '根据时间显示不同问候';
+            }
+        }
+
+        // 页面加载时立即更新一次
+        updateTimeAndGreeting();
+
+        // 每秒更新一次时间和问候语
+        setInterval(updateTimeAndGreeting, 1000);
+    </script>
+</body>
+</html>

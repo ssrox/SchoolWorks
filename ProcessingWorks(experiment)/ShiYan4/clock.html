@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电子时钟</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .clock-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+        }
+        .clock-header {
+            margin-bottom: 30px;
+        }
+        .clock-header h1 {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .clock-header i {
+            color: #4F46E5;
+            margin-right: 10px;
+        }
+        .clock-display {
+            font-size: 48px;
+            font-weight: bold;
+            color: #333;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: baseline;
+        }
+        .clock-display span {
+            display: inline-block;
+            min-width: 40px;
+            text-align: center;
+        }
+        .clock-display .colon {
+            font-size: 36px;
+            margin: 0 10px;
+            color: #ddd;
+        }
+        .ampm-display {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .control-btn {
+            background: #4F46E5;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .control-btn:hover {
+            background: #3b35d6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+        }
+        .control-btn i {
+            margin-right: 8px;
+        }
+        .stop {
+            background: #ef4444;
+        }
+        .stop:hover {
+            background: #dc2626;
+        }
+        @media (max-width: 400px) {
+            .clock-container {
+                padding: 20px;
+            }
+            .clock-display {
+                font-size: 36px;
+            }
+            .clock-display .colon {
+                font-size: 28px;
+            }
+            .ampm-display {
+                font-size: 16px;
+            }
+            .control-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="clock-container">
+        <div class="clock-header">
+            <h1><i class="fa fa-clock-o"></i> 电子时钟</h1>
+        </div>
+        <div class="clock-display" id="clockDisplay">
+            <span id="hours">12</span>
+            <span class="colon">:</span>
+            <span id="minutes">00</span>
+            <span class="colon">:</span>
+            <span id="seconds">00</span>
+        </div>
+        <div class="ampm-display" id="ampmDisplay">上午</div>
+        <button class="control-btn" id="controlBtn">
+            <i class="fa fa-play"></i> 开始
+        </button>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const hoursElement = document.getElementById('hours');
+        const minutesElement = document.getElementById('minutes');
+        const secondsElement = document.getElementById('seconds');
+        const ampmElement = document.getElementById('ampmDisplay');
+        const controlBtn = document.getElementById('controlBtn');
+
+        // 定义时钟状态
+        let isRunning = true;
+        let clockInterval;
+
+        // 更新时钟显示的函数
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            
+            // 转换为12小时制
+            let ampm = '上午';
+            if (hours >= 12) {
+                ampm = '下午';
+                if (hours > 12) {
+                    hours -= 12;
+                }
+            }
+            
+            // 添加数字翻转动画类
+            hoursElement.classList.add('clock-flip');
+            minutesElement.classList.add('clock-flip');
+            secondsElement.classList.add('clock-flip');
+            
+            // 更新显示
+            hoursElement.textContent = hours.toString().padStart(2, '0');
+            minutesElement.textContent = minutes;
+            secondsElement.textContent = seconds;
+            ampmElement.textContent = ampm;
+            
+            // 移除动画类，以便下次添加时重新触发动画
+            setTimeout(() => {
+                hoursElement.classList.remove('clock-flip');
+                minutesElement.classList.remove('clock-flip');
+                secondsElement.classList.remove('clock-flip');
+            }, 500);
+        }
+
+        // 切换时钟状态的函数
+        function toggleClock() {
+            isRunning = !isRunning;
+            if (isRunning) {
+                // 开始时钟
+                clockInterval = setInterval(updateClock, 1000);
+                controlBtn.className = 'control-btn';
+                controlBtn.innerHTML = '<i class="fa fa-pause"></i> 暂停';
+            } else {
+                // 停止时钟
+                clearInterval(clockInterval);
+                controlBtn.className = 'control-btn stop';
+                controlBtn.innerHTML = '<i class="fa fa-play"></i> 开始';
+            }
+        }
+
+        // 页面加载时初始化时钟
+        updateClock();
+        clockInterval = setInterval(updateClock, 1000);
+
+        // 控制按钮点击事件
+        controlBtn.addEventListener('click', toggleClock);
+    </script>
+</body>
+</html>
